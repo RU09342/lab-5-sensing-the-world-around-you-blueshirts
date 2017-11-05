@@ -33,7 +33,7 @@
  #include <msp430.h>
  unsigned int ADC_value = 0;
 
- void adc_str(void)
+ void adc_str(void);
 
 int main(void)
 {
@@ -129,7 +129,7 @@ int main(void)
        UCA0TXBUF = ADC10MEM; //adds ADC value and skips clockcycle apparently
    }
    else{
-       UCA0TXBUF = 66;
+       UCA0TXBUF = 0;       //else code to print stop perhaps
    }
 
  }
