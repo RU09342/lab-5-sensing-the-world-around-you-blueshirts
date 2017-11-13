@@ -67,7 +67,21 @@
 //   April 2014
 //   Built with IAR Embedded Workbench V5.60 & Code Composer Studio V6.0
 //******************************************************************************
+/*
+* msp430fr6989-adc12.c
+*
+*	Created on: October 22, 2017
+*	Updated on: November 5, 2017
+*      Author: Joshua Gould
+*
+*/
+
 #include <msp430.h>
+#include <LCDDriver.c>
+#include "LCDDriver.h"
+
+void LCD_init();
+char conv(int);
 
 int main(void)
 {
