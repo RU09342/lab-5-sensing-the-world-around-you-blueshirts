@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* --COPYRIGHT--,BSD_EX
 * Copyright (c) 2014, Texas Instruments Incorporated
 * All rights reserved.
@@ -42,6 +43,8 @@
 * for an API functional library-approach to peripheral configuration.
 *
 * --/COPYRIGHT--*/
+=======
+>>>>>>> 74d7bdce076ecca7904df623e847f1b0ba98b5b7
 //******************************************************************************
 //  MSP430G2x33/G2x53 Demo - ADC10, Sample A1, AVcc Ref, Set P1.0 if > 0.5*AVcc
 //
