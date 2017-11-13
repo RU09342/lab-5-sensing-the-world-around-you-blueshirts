@@ -30,9 +30,9 @@ While UART is awesome for talking between processors, it also can be used to str
 For the finale of this lab, pick a processor and run at least two of these visualizations at the same time. You also should look at using multiple channels on the internal ADC, although this is not required.
 
 ## Tasks
-[x] Code for ADC12
-[x] LCD Display
-[x] LCD Read thermistor
+[ X ] Code for ADC12
+[ X ] LCD Display
+[ x ] LCD Read thermistor
 
 ## Compatibility
 * MSP430G2553
