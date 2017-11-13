@@ -30,9 +30,9 @@ While UART is awesome for talking between processors, it also can be used to str
 For the finale of this lab, pick a processor and run at least two of these visualizations at the same time. You also should look at using multiple channels on the internal ADC, although this is not required.
 
 ## Tasks
-[ X ] Code for ADC12
-[ X ] LCD Display
-[ x ] LCD Read thermistor
+* [x] Code for ADC12
+* [x] LCD Display
+* [x] LCD Read thermistor
 
 ## Compatibility
 * MSP430G2553
@@ -42,6 +42,6 @@ For the finale of this lab, pick a processor and run at least two of these visua
 For this part of the lab, you need to be able to organize your submissions based on the part of the lab it is fulfilling. If this means using a ton of folders, be my guest, but at the end of the day, I am going to be grading these as if I am someone coming to your repository for information. This whole part can be summarized in one large README which should be *HEAVILY* focused on how to actually implement and use your code. 
 
 ### Extra Work
-[ ] RGB LED
-[x] MATLAB Code
-[ ] Computer Plotting
+* [ ] RGB LED
+* [x] MATLAB Code
+* [ ] Computer Plotting

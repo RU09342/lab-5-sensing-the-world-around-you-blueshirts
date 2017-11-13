@@ -13,9 +13,9 @@
 "You will be required to design a simple breakout board for the MSP430FR2311. This is one of the simplest processors you have to design for, requiring you to only place a few capacitors to get it to work. You might think wait, but isn't there all that stuff up at the top of the board? Don't we need to also include that? All of those parts are part of the programmer/debugger and it is very easy to program your chip using just a few wires."
 
 #### Tasks
-[x] BOARD.sch
-[x] BOARD.pcb
-[x] GERBER folder
+* [x] BOARD.sch
+* [x] BOARD.pcb
+* [x] GERBER folder
 
 ## Compatibility
 * MSP430FR2311

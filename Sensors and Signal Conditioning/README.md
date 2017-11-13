@@ -25,9 +25,9 @@ For this part of the lab, you need to focus on two main aspects: utilizing and r
 * Resistance
 
 #### Tasks
-[x] Code for ADC10
-[x] Code for ADC12
-[x] Circuit design and descriptions
+* [x] Code for ADC10
+* [x] Code for ADC12
+* [x] Circuit design and descriptions
 
 ## Compatibility
 * MSP430G2553
