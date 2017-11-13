@@ -1,4 +1,4 @@
-# Lab 5 - TITLE
+# Lab 5 - PCB Design
 #### Joshua Gould & John Pedicone 
 ##### Created - 11-12-2017
 ##### Updated - 11-14-2017
