@@ -7,10 +7,12 @@
 msp430.h - default library
 
 ## Dependencies
-* BOARD.sch
-* BOARD.pcb
-* GERBERS (Folder)
-* Diptrace Program
+* Breadboard
+* MSP430G2553 and FR6989
+* Photoresistor
+* Photodiode
+* Phototransistor
+* Multimeter and oscilloscope
 
 ## Set Requirements
 ##### Sensors
