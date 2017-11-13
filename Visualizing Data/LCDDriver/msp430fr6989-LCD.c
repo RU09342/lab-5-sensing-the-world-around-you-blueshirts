@@ -68,29 +68,32 @@
 //   Built with IAR Embedded Workbench V5.60 & Code Composer Studio V6.0
 //******************************************************************************
 /*
-* msp430fr6989-adc12.c
+*	msp430fr6989-LCD.c
 *
 *	Created on: October 22, 2017
 *	Updated on: November 7, 2017
 *      Author: Joshua Gould
 *
 *	Notes
-*	Configured P1.1 for ADC
+*	Configured P9.1 for ADC
 */
 
+/////////LIBRARY DEFINITIONS////////////////////////////////////////
 
 #include "msp430.h"
 #include <LCDDriver.h>
 #include <stdlib.h>
 
+/////////LIBRARY DEFINITIONS////////////////////////////////////////
+
 /////////INITALIZATION//////////////////////////////////////////////
 
-void LCDInit();
-char convertToChar(int);
+void LCDInit();				//define function
+char convertToChar(int);	//make a convertochar for LCD display later
 
-int adc_value = 0; //will contain contents from ADC12MEM0
-int arrInt[3]; //will contain digits of adc_value
-int count = 0; //used as index for arrInt
+int adc_value = 0;			//ADC12MEM0 values for LCD data
+int arrInt[3];				//digits of adc_value before Char conversion
+int count = 0;				//used as index for arrInt
 
 /////////INITALIZATION//////////////////////////////////////////////
 
