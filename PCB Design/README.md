@@ -1,7 +1,7 @@
 # Lab 5 - PCB Design
 #### Joshua Gould & John Pedicone 
 ##### Created - 11-12-2017
-##### Updated - 11-14-2017
+##### Updated - 11-18-2017
 
 ## Dependencies
 * BOARD.sch
@@ -23,8 +23,6 @@
 # Functionality Description
 Your board should be a 2 layer board which can conveniently fit on a breadboard and contains the required passives for this processor to work in a standalone implementation. This means that the board should contain bypass capacitors, and the proper reset circuitry as laid out in the MSP430FR2311 datasheet. As per PCBWAY manufacturing restrictions, you should not have any traces smaller than 6mil, and your board should be smaller than 4 inches per side (which is maybe 4 times larger than your board should be.)
 
-### Bill of Materials
-
-### Link to MOUSER
+### PCB & Circuit
 
 
