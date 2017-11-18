@@ -21,7 +21,7 @@
 * MSP430FR2311
 
 # Functionality Description
-Your board should be a 2 layer board which can conveniently fit on a breadboard and contains the required passives for this processor to work in a standalone implementation. This means that the board should contain bypass capacitors, and the proper reset circuitry as laid out in the MSP430FR2311 datasheet. As per PCBWAY manufacturing restrictions, you should not have any traces smaller than 6mil, and your board should be smaller than 4 inches per side (which is maybe 4 times larger than your board should be.)
+The board is a 2 layer board that should conveniently fit on a breadboard and it contains the required passives for this processor to work in a standalone implementation. As listed below, the board contains bypass capacitors, and the proper reset circuitry as laid out in the MSP430FR2311 datasheet. The board has a total area falls to 1" x 0.7". 
 
 ### PCB & Circuit
 ![Alt Text](https://github.com/RU09342/lab-5-sensing-the-world-around-you-blueshirts/blob/master/PCB%20Design/images/PCBPNG.PNG)
