@@ -1,17 +1,17 @@
 //******************************************************************************
 //
-//					  MSP430FR6989
-//				  -------------------
+//				 MSP430FR6989
+//			      -------------------
 //			   /|\|              VCC|- 3.3V
 //			    | |                 |
-//			    --|GND				|
-//				  |					|
-//		          |                 |
-//	 adc_value <--|P1.3/A1      P1.0|--> LED
-//				  |					|
-//				  |					|
-//				  |   LCD DISPLAY	|
-//				  -------------------
+//			    --|GND		|
+//			      |			|
+//		              |                	|
+//		 adc_value <--|P1.3/A1      P1.0|--> LED
+//			      |			|
+//			      |			|
+//			      |   LCD DISPLAY	|
+//			      -------------------
 //
 //	Description: adc_value to LM35, displays temperture on LCD Display
 //
@@ -115,9 +115,9 @@ int main(void)
 //MAIN FUNCTION/////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////
-	/*												*/
-	/*				INITIALIZATIONS					*/
-	/*												*/
+	/*						*/
+	/*		INITIALIZATIONS			*/
+	/*						*/
 	//////////////////////////////////////////////////	
 
 
@@ -161,14 +161,14 @@ void initADC12() {
 
 void LCDInit()
 {
-	LCDCTL0 &= ~LCDON;									//lcd off
+	LCDCTL0 &= ~LCDON;					//lcd off
 	LCDCCTL0 = LCDDIV__2 + LCDPRE__4 + LCD4MUX + LCDLP;	//Flcd = 512 Hz. Fframe = 64Hz
-	LCDCCPCTL = LCDCPCLKSYNC;							// Clock synchronization enabled
-	LCDCMEMCTL = LCDCLRM;								// Clear LCD memory
+	LCDCCPCTL = LCDCPCLKSYNC;				// Clock synchronization enabled
+	LCDCMEMCTL = LCDCLRM;					// Clear LCD memory
 	LCDCPCTL0 = 0xFFFF;
 	LCDCPCTL1 = 0xFFFF;
 	LCDCPCTL2 = 0x7FFF;
-	LCDCCTL0 |= LCDON;                                  // lcd on
+	LCDCCTL0 |= LCDON;                                	// lcd on
 
 	// Disable the GPIO power-on default high-impedance mode
 	// to activate previously configured port settings
@@ -180,9 +180,9 @@ void LCDInit()
 //LCD INITIALIZE///////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////
-	/*												*/
-	/*					INTERRUPTS					*/
-	/*												*/
+	/*						*/
+	/*		INTERRUPTS			*/
+	/*						*/
 	//////////////////////////////////////////////////	
 
 //ADC INTERRUPT////////////////////////////////////////////////////////////
