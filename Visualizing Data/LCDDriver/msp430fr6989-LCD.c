@@ -1,3 +1,27 @@
+//******************************************************************************
+//
+//					  MSP430FR6989
+//				  -------------------
+//			   /|\|              VCC|- 3.3V
+//			    | |                 |
+//			    --|GND				|
+//				  |					|
+//		          |                 |
+//	 adc_value <--|P1.3/A1      P1.0|--> LED
+//				  |					|
+//				  |					|
+//				  |   LCD DISPLAY	|
+//				  -------------------
+//
+//	Description: adc_value to LM35, displays temperture on LCD Display
+//
+//	Filename : msp430fr6989-LCD.c
+//  
+//	Created on : October 22, 2017
+//	Updated on : November 15, 2017
+//	Author : Joshua Gould
+//
+//******************************************************************************
 /* --COPYRIGHT--,BSD_EX
  * Copyright (c) 2014, Texas Instruments Incorporated
  * All rights reserved.
@@ -42,113 +66,128 @@
  * for an API functional library-approach to peripheral configuration.
  *
  * --/COPYRIGHT--*/
-//******************************************************************************
-//  MSP430FR69xx Demo - ADC12, Sample A1, AVcc Ref, Set P1.0 if A1 > 0.5*AVcc
+//	Configured P9.1 for ADC
 //
-//   Description: A single sample is made on A1 with reference to AVcc.
-//   Software sets ADC12SC to start sample and conversion - ADC12SC
-//   automatically cleared at EOC. ADC12 internal oscillator times sample (16x)
-//   and conversion. In Mainloop MSP430 waits in LPM0 to save power until ADC12
-//   conversion complete, ADC12_ISR will force exit from LPM0 in Mainloop on
-//   reti. If A1 > 0.5*AVcc, P1.0 set, else reset. The full, correct handling of
-//   and ADC12 interrupt is shown as well.
-//
-//
-//                MSP430FR6989
-//             -----------------
-//         /|\|              XIN|-
-//          | |                 |
-//          --|RST          XOUT|-
-//            |                 |
-//        >---|P1.1/A1      P1.0|-->LED
-//
-//   William Goh
-//   Texas Instruments Inc.
-//   April 2014
-//   Built with IAR Embedded Workbench V5.60 & Code Composer Studio V6.0
-//******************************************************************************
-/*
-*	msp430fr6989-LCD.c
-*
-*	Created on: October 22, 2017
-*	Updated on: November 7, 2017
-*      Author: Joshua Gould
-*
-*	Notes
-*	Configured P9.1 for ADC
-*/
 
-/////////LIBRARY DEFINITIONS////////////////////////////////////////
+//LIBRARY INIT & DEFINITIONS//////////////////////////////////////////////////
 
-#include "msp430.h"
-#include <LCDDriver.h>
-#include <stdlib.h>
+#include <msp430.h>
+#include "LCDDriver.h"
 
-/////////LIBRARY DEFINITIONS////////////////////////////////////////
+void initADC12(void);
+void initLCD(void);
+void initGPIO(void);
 
-/////////INITALIZATION//////////////////////////////////////////////
+float tempC = 0;
+float tempF = 0;
+float voltage = 0;
+unsigned int adc_value;
+int LCD_1, LCD_2;
+char char_1, char_2
 
-void LCDInit();				//define function
-char convertToChar(int);	//make a convertochar for LCD display later
+//LIBRARY INIT & DEFINITIONS////////////////////////////////////////////////////
 
-int adc_value = 0;			//ADC12MEM0 values for LCD data
-int arrInt[3];				//digits of adc_value before Char conversion
-int count = 0;				//used as index for arrInt
+//MAIN FUNCTION/////////////////////////////////////////////////////////////////
 
-/////////INITALIZATION//////////////////////////////////////////////
-
-/////////MAIN FUNCTION//////////////////////////////////////////////
-
-int main(void
+int main(void)
 {
 	WDTCTL = WDTPW | WDTHOLD;               // Stop WDT
-
-											//initialize lcd
-	LCDInit();
-	showChar('0', 0);		//show 000000 at start
-	showChar('0', 1);		//shows numbers from from left to right (0-6)
-	showChar('0', 2);
-	showChar('0', 3);
-	showChar('0', 4);
-	showChar('0', 5);
-	showChar('0', 6);
-
-
-	// GPIO Setup
-	P1OUT &= ~BIT0;                         // Clear LED to start
-	P1DIR |= BIT0;                          // Set P1.0/LED to output
-	P9SEL1 |= BIT1;                         // Configure P9.1 for ADC
-	P9SEL0 |= BIT1;
+	
+	initGPIO();
+	initADC12();
+	initLCD();
 
 	// Disable the GPIO power-on default high-impedance mode to activate
 	// previously configured port settings
 	PM5CTL0 &= ~LOCKLPM5;
 
-	// Configure ADC12 (taken from ADC12 code)
-	ADC12CTL0 = ADC12SHT0_2 | ADC12ON;      // Sampling time, S&H=16, ADC12 on
-	ADC12CTL1 = ADC12SHP;                   // Use sampling timer
-	ADC12CTL2 |= ADC12RES_2;                // 12-bit conversion results
-	ADC12MCTL0 |= ADC12INCH_1;              // A1 ADC input select; Vref=AVCC
-	ADC12IER0 |= ADC12IE0;                  // Enable ADC conv complete interrupt
-
-	while (1)	//run adc cycle forever
+	while (1)
 	{
-		__delay_cycles(5000);				// change delay to show refresh-rate of number input (MAY REMOVE)
+		__delay_cycles(1000);
 		ADC12CTL0 |= ADC12ENC | ADC12SC;    // Start sampling/conversion
 
 		__bis_SR_register(LPM0_bits | GIE); // LPM0, ADC12_ISR will force exit
-		__no_operation();                   // For debugger operation (without this code conflicts with debugger)
+		__no_operation();                   // For debugger
 	}
 
-
-	return 0;
 }
 
-/////////MAIN FUNCTION//////////////////////////////////////////////
+//MAIN FUNCTION/////////////////////////////////////////////////////////////////
 
-/////////ADC INTERRUPT//////////////////////////////////////////////
+	//////////////////////////////////////////////////
+	/*												*/
+	/*				INITIALIZATIONS					*/
+	/*												*/
+	//////////////////////////////////////////////////	
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+
+//GPIO INITiALIZATION///////////////////////////////////////////////////////////
+
+void initGPIO() {
+	
+	P1OUT &= ~BIT0;                         // Clear LED to start
+	P1DIR |= BIT0;                          // Set P1.0/LED to output
+	
+	P1DIR |= BIT3;							// Configure P1.3 for ADC
+	P1SEL1 |= BIT3;
+	P1SEL0 |= BIT3;
+
+	//All out reference from TI
+	P1DIR = 0xFF;
+	P1REN = 0xFF;
+	P1OUT = 0x00;
+
+	P2DIR = 0xFF;
+	P2REN = 0xFF;
+	P2OUT = 0x00;
+
+}
+//GPIO INITiALIZATION///////////////////////////////////////////////////////////
+
+//ADC INITIALIZATION////////////////////////////////////////////////////////////
+void initADC12() {
+	// Configure ADC12
+	ADC12CTL0 = ADC12SHT0_2 | ADC12ON;      // Sampling time, S&H=16, ADC12 on
+	ADC12CTL1 = ADC12SHP;                   // Use sampling timer
+	ADC12CTL2 |= ADC12RES_2;                // 12-bit conversion results
+	ADC12MCTL0 |= ADC12INCH_3;              // A3 ADC input select; Vref=AVCC
+	ADC12IER0 |= ADC12IE0;                  // Enable ADC conv complete interrupt
+
+
+}
+//ADC INITIALIZATION/////////////////////////////////////////////////////////////
+
+//LCD INITIALIZE///////////////////////////////////////////////////////////
+
+void LCDInit()
+{
+	LCDCTL0 &= ~LCDON;									//lcd off
+	LCDCCTL0 = LCDDIV__2 + LCDPRE__4 + LCD4MUX + LCDLP;	//Flcd = 512 Hz. Fframe = 64Hz
+	LCDCCPCTL = LCDCPCLKSYNC;							// Clock synchronization enabled
+	LCDCMEMCTL = LCDCLRM;								// Clear LCD memory
+	LCDCPCTL0 = 0xFFFF;
+	LCDCPCTL1 = 0xFFFF;
+	LCDCPCTL2 = 0x7FFF;
+	LCDCCTL0 |= LCDON;                                  // lcd on
+
+	// Disable the GPIO power-on default high-impedance mode
+	// to activate previously configured port settings
+	// You have to do this again the interrupt
+	PM5CTL0 &= ~LOCKLPM5;
+
+}
+
+//LCD INITIALIZE///////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////
+	/*												*/
+	/*					INTERRUPTS					*/
+	/*												*/
+	//////////////////////////////////////////////////	
+
+//ADC INTERRUPT////////////////////////////////////////////////////////////
+
+##if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector = ADC12_VECTOR
 __interrupt void ADC12_ISR(void)
 #elif defined(__GNUC__)
@@ -166,26 +205,22 @@ void __attribute__((interrupt(ADC12_VECTOR))) ADC12_ISR(void)
 	case ADC12IV_ADC12LOIFG:  break;    // Vector  8:  ADC12BLO
 	case ADC12IV_ADC12INIFG:  break;    // Vector 10:  ADC12BIN
 	case ADC12IV_ADC12IFG0:             // Vector 12:  ADC12MEM0 Interrupt
+		adc_value = ADC12MEM0;
+		voltage = ((float)adc_value/1241.2)
+		LCD_1 = voltage*10;
+		LCD_2 = ((int)(voltage * 100)) % 10;
+		char_1 = '0' + LCD_1;
+		char_2 = '0' + LCD_2;
 
-		adc_value = ADC12MEM0 - CALADC_12V_30C;
+		showChar(char_1, 1);		//tens digit
+		showChar(char_2, 2);		//ones digit
+		showChar(' ', 3);			//add space
+		showChar('C', 4);			//Celcius
 
-		//iterates through 3 digit adc_value and puts each digit into arrInt in reverse order
-		do {
-			arrInt[count] = (adc_value % 10);
-			adc_value /= 10;
-			count++;
-		} while (adc_value>0);
-
-		//prints out characters to lcd screen
-		showChar(convertToChar(arrInt[2]), 1);
-		showChar(convertToChar(arrInt[1]), 2);
-		showChar(convertToChar(arrInt[0]), 3);
-
-		// Exit from LPM0 and continue executing main
 		__bic_SR_register_on_exit(LPM0_bits);
-		break;
+		break;	
 	case ADC12IV_ADC12IFG1:   break;    // Vector 14:  ADC12MEM1
-	case ADC12IV_ADC12IFG2:   break;    // Vector 16:  ADC12MEM2
+	case ADC12IV_ADC12IFG2:	  break;    // Vector 16:  ADC12MEM2
 	case ADC12IV_ADC12IFG3:   break;    // Vector 18:  ADC12MEM3
 	case ADC12IV_ADC12IFG4:   break;    // Vector 20:  ADC12MEM4
 	case ADC12IV_ADC12IFG5:   break;    // Vector 22:  ADC12MEM5
@@ -216,129 +251,7 @@ void __attribute__((interrupt(ADC12_VECTOR))) ADC12_ISR(void)
 	case ADC12IV_ADC12IFG30:  break;    // Vector 72:  ADC12MEM30
 	case ADC12IV_ADC12IFG31:  break;    // Vector 74:  ADC12MEM31
 	case ADC12IV_ADC12RDYIFG: break;    // Vector 76:  ADC12RDY
-	default: break;
+	default:break;
 	}
 }
-
-/////////ADC INTERRUPT//////////////////////////////////////////////
-
-/////////LCD INITIALIZE/////////////////////////////////////////////
-
-void LCDInit()
-{
-	PJSEL0 = BIT4 | BIT5;                   // For LFXT. PJSEL is just the LFXT register
-
-	// Initialize LCD segments 0 - 21; 26 - 43 (the numbers in the LCD display)
-	LCDCPCTL0 = 0xFFFF;
-	LCDCPCTL1 = 0xFC3F;
-	LCDCPCTL2 = 0x0FFF;
-
-	// Disable the GPIO power-on default high-impedance mode
-	// to activate previously configured port settings
-	// You have to do this again the interrupt
-	PM5CTL0 &= ~LOCKLPM5;
-
-	// Configure LFXT 32kHz crystal
-	CSCTL0_H = CSKEY >> 8;                  // Unlock CS registers
-	CSCTL4 &= ~LFXTOFF;                     // Enable LFXT
-	do
-	{
-		CSCTL5 &= ~LFXTOFFG;                  // Clear LFXT fault flag
-		SFRIFG1 &= ~OFIFG;
-	} while (SFRIFG1 & OFIFG);               // Test oscillator fault flag
-	CSCTL0_H = 0;                           // Lock CS registers
-
-											// Initialize LCD_C
-											// ACLK, Divider = 1, Pre-divider = 16; 4-pin MUX
-	LCDCCTL0 = LCDDIV__1 | LCDPRE__16 | LCD4MUX | LCDLP;
-
-	// VLCD generated internally,
-	// V2-V4 generated internally, v5 to ground
-	// Set VLCD voltage to 2.60v
-	// Enable charge pump and select internal reference for it
-	LCDCVCTL = VLCD_1 | VLCDREF_0 | LCDCPEN;
-
-	LCDCCPCTL = LCDCPCLKSYNC;               // Clock synchronization enabled
-
-	LCDCMEMCTL = LCDCLRM;                   // Clear LCD memory
-											//Turn LCD on
-	LCDCCTL0 |= LCDON;
-}
-
-//converts a passed integer 0-9 to the corresponding characters 0-9
-char convertToChar(int digit) {
-	char digitChar;
-
-	switch (digit) {
-	case 0: {
-		digitChar = '0';
-		break;
-	}
-	case 1: {
-		digitChar = '1';
-		break;
-	}
-	case 2: {
-		digitChar = '2';
-		break;
-	}
-	case 3: {
-		digitChar = '3';
-		break;
-	}
-	case 4: {
-		digitChar = '4';
-		break;
-	}
-	case 5: {
-		digitChar = '5';
-		break;
-	}
-	case 6: {
-		digitChar = '6';
-		break;
-	}
-	case 7: {
-		digitChar = '7';
-		break;
-	}
-	case 8: {
-		digitChar = '8';
-		break;
-	}
-	case 9: {
-		digitChar = '9';
-		break;
-	}
-
-	}
-
-	return digitChar;
-}
-
-
-/*void tempSensor()
-{
-	//Enter LPM3 mode with interrupts enabled
-	while (mode == TEMPSENSOR_MODE)
-	{
-		__bis_SR_register(LPM3_bits | GIE);                       // LPM3 with interrupts enabled
-		__no_operation();                                         // Only for debugger
-
-		if (tempSensorRunning)
-		{
-			// Turn LED1 on when waking up to calculate temperature and update display
-			P1OUT |= BIT0;
-
-			// Calculate Temperature in degree C and F
-			signed short temp = (ADC12MEM0 - CALADC_12V_30C);
-			degC = ((long)temp * 10 * (85 - 30) * 10) / ((CALADC_12V_85C - CALADC_12V_30C) * 10) + 300;
-			degF = (degC) * 9 / 5 + 320;
-
-			// Update temperature on LCD
-			displayTemp();
-
-			P1OUT &= ~BIT0;
-		}
-	}
-	*/
+//ADC INTERRUPT////////////////////////////////////////////////////////////
