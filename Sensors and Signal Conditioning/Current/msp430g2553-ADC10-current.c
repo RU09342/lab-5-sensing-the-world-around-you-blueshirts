@@ -1,22 +1,22 @@
 //******************************************************************************
 //
-//					  MSP430G2553
-//				  -------------------
-//			   /|\	|	       VCC|- 3.3V
-//			    | 	|                 |
-//			--	|GND          P1.1|--< RX
-//				|	      P1.2|--> TX
-//				|		  |
-//		         	|                 |
-//	 	   adc_value <--|P1.7/A1      P1.0|--> LED
-//				  -------------------
-//	adc_value (P1.7) to LM35
+//                    MSP430G2553
+//                -------------------
+//             /|\  |          VCC|- 3.3V
+//              |   |                 |
+//          --  |GND          P1.1|--< RX
+//              |         P1.2|--> TX
+//              |         |
+//                  |                 |
+//         adc_value <--|P1.7/A1      P1.0|--> LED
+//                -------------------
+//  adc_value (P1.7) to phototransistor
 //
-//	Filename : msp430g2553-ADC10.c
-//  
-//	Created on : October 22, 2017
-//	Updated on : November 15, 2017
-//	Author : Joshua Gould
+//  Filename : msp430g2553-ADC10-current.c
+//
+//  Created on : October 22, 2017
+//  Updated on : November 17, 2017
+//  Author : Joshua Gould
 //
 //******************************************************************************
 /* --COPYRIGHT--,BSD_EX
@@ -72,7 +72,7 @@ void initADC10(void);
 void initUART(void);
 void initClock(void);
 
-unsigned int adc_value= 0;
+unsigned int adc_value = 0;
 float tempC = 0;
 float tempF = 0;
 float voltage = 0;
@@ -96,11 +96,11 @@ int main(void)
 
 //MAIN FUNCTION////////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////
-	/*						*/
-	/*		INITIALIZATIONS			*/
-	/*						*/
-	//////////////////////////////////////////////////												
+//////////////////////////////////////////////////
+/*                      */
+/*      INITIALIZATIONS         */
+/*                      */
+//////////////////////////////////////////////////
 
 //ADC INITIALIZATION///////////////////////////////////////////////
 
@@ -126,7 +126,7 @@ void initTimer()
 //UART INITIALIZATION//////////////////////////////////////////////
 void initUART()
 {
-	if (CALBC1_1MHZ == 0xFF)				// If calibration constant erased
+	if (CALBC1_1MHZ == 0xFF)                // If calibration constant erased
 	{
 		while (1);
 	}
@@ -154,11 +154,11 @@ void initClock()
 }
 //CLOCK INITALIZATION//////////////////////////////////////////////
 
-	//////////////////////////////////////////////////
-	/*						*/
-	/*		INTERRUPTS			*/
-	/*						*/
-	//////////////////////////////////////////////////	
+//////////////////////////////////////////////////
+/*                      */
+/*      INTERRUPTS          */
+/*                      */
+//////////////////////////////////////////////////
 
 //ADC INTERRUPT////////////////////////////////////////////////////
 //Reference from Jessica Wozniak for temp conversion
@@ -167,13 +167,12 @@ void initClock()
 __interrupt void ADC10_ISR(void)
 {
 	adc_value = ADC10MEM;
-	voltage = adc_value* 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
-	tempC = voltage / 0.01;               //For LM35 each degree C is 10mv (0.01V)
-	tempF = ((9 * (tempC)) / 5) + 32;             //converts degrees C to degrees F
+	voltage = adc_value* 0.00029;   //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
+	current = voltage / 1000		//Ohms Law for current
 
 	while (!(IFG2 & UCA0TXIFG));          //waits for tx to be clear
-	UCA0TXBUF = tempF;                   //send to TX in fahrenheit  (write tempC for Celcius) 
-} 
+	UCA0TXBUF = current;                   //send to TX in fahrenheit  (write tempC for Celcius)
+}
 //ADC INTERRUPT////////////////////////////////////////////////////
 
 //TIMER INTERRUPT//////////////////////////////////////////////////
@@ -181,8 +180,8 @@ __interrupt void ADC10_ISR(void)
 __interrupt void Timer_A(void)
 
 {
-	ADC10CTL0 = SREF_0 + ADC10SHT_2 + REFON + ADC10ON + ADC10IE;	//AVSS, 16 x ADC10CLKs, ADC10 Reference on, ADC10 On/Enable, ADC10 Interrupt Enable
-	ADC10CTL0 |= ENC;												// ADC10 enable set
+	ADC10CTL0 = SREF_0 + ADC10SHT_2 + REFON + ADC10ON + ADC10IE;    //AVSS, 16 x ADC10CLKs, ADC10 Reference on, ADC10 On/Enable, ADC10 Interrupt Enable
+	ADC10CTL0 |= ENC;                                               // ADC10 enable set
 }
 //TIMER INTERRUPT//////////////////////////////////////////////////
 

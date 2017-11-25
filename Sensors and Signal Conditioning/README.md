@@ -1,7 +1,7 @@
-# Lab 5 - Sensors and Signal Conditioning
+﻿# Lab 5 - Sensors and Signal Conditioning
 #### Joshua Gould
 ##### Created - 11-12-2017
-##### Updated - 11-18-2017
+##### Updated - 11--2017
 
 ## Library Used
 msp430.h - default library
@@ -29,7 +29,7 @@ For this part of the lab, you need to focus on two main aspects: utilizing and r
 #### Tasks
 * [x] Code for ADC10
 * [x] Code for ADC12
-* [ ] Resistor, Current, and Voltage measurement
+* [x] Resistor, Current, and Voltage measurement
 * [x] Circuit design and descriptions
 
 ## Compatibility
