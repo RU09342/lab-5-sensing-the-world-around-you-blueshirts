@@ -46,10 +46,10 @@ After running ADC code for the G2553, the values transmitted from the LM35 acros
 The values read are provided below. The LM35 handles each 10mV as one degree celcius and as such the value taken from this circuit must be divided by 0.01V. Other conversions to Fahrenheit were made and the snippet of code in the ADC interrupt is provided below as well.
 
 ```C
-adc_value = ADC10MEM;
-	voltage = adc_value* 0.0033;         //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage .00029 for ADC 12
-	tempC = voltage / 0.01;               //For LM35 each degree C is 10mv (0.01V)
-	tempF = ((9 * (tempC)) / 5) + 32;             //converts degrees C to degrees F
+  adc_value = ADC10MEM;
+  voltage = adc_value* 0.0033;         //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage .00029 for ADC 12
+  tempC = voltage / 0.01;               //For LM35 each degree C is 10mv (0.01V)
+  tempF = ((9 * (tempC)) / 5) + 32;             //converts degrees C to degrees F
 ```
 
 ## Phototransistor - Current
@@ -59,9 +59,9 @@ The OP805SL was used for this circuit. The datasheet is provided in repository
 Code for the phototransistor UART measurements are provided below
 
 ```C
-adc_value = ADC10MEM;
-	voltage = adc_value * 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
-	current = voltage / 1000;               //Ohms law. Constant resisitor is 1kΩ
+  adc_value = ADC10MEM;
+  voltage = adc_value * 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
+  current = voltage / 1000;               //Ohms law. Constant resisitor is 1kΩ
 ```
 ## Photoresistor - Resistance
 In this photoresistance circuit, the photoresistor was used with ADC and voltage division.
@@ -70,9 +70,9 @@ The ADC code reads the resistance of the photoresistor and the resistor in the c
 Code for the photoresistor UART measurements are provided below
 
 ```C
-adc_value = ADC10MEM;
-	voltage = adc_value * 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
-	resistance = (3300.0/voltage) - 1000;          //use voltage division equation
+  adc_value = ADC10MEM;
+  voltage = adc_value * 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
+  resistance = (3300.0/voltage) - 1000;          //use voltage division equation
 ```
 ## Code
 The requirements for this lab were modified to provide only a working ADC10 and ADC12 code for the lab. Each ADC code explaination is provided below.
@@ -86,10 +86,10 @@ Timer was set to allow a constant read from the ADC to read once per second
 
 ```C
   TACCTL0 = CCIE;                           // Enable interrupt
-	TACCR0 = 4096 - 1;                        // PWM Period
-	TACCTL1 = OUTMOD_3;                       // TACCR1 set/reset
-	TACCR1 = 256;                             // TACCR1 PWM Duty Cycle
-	TACTL = TASSEL_1 + MC_1 + ID_3;           // ACLK, UP MODE, DIV 4
+  TACCR0 = 4096 - 1;                        // PWM Period
+  TACCTL1 = OUTMOD_3;                       // TACCR1 set/reset
+  TACCR1 = 256;                             // TACCR1 PWM Duty Cycle
+  TACTL = TASSEL_1 + MC_1 + ID_3;           // ACLK, UP MODE, DIV 4
 ```
 
 ##### ADC
@@ -97,23 +97,23 @@ ADC settings (given by TI) allowed for the ADC to turn on and set registers
 
 ```C
   ADC10CTL1 = INCH_7 + SHS_1;            // P1.7, TA1 trigger sample start
-	ADC10AE0 = BIT7;                       // ADC10 on P1.7
-	P1DIR |= BIT0;                         // set LED1 to output
+  ADC10AE0 = BIT7;                       // ADC10 on P1.7
+  P1DIR |= BIT0;                         // set LED1 to output
 ```
 ##### UART
 Example code was given in LAB-1 
 ```C
   DCOCTL = 0;                             // Select lowest DCOx and MODx settings
-	BCSCTL1 = CALBC1_1MHZ;                  // Set DCO
-	DCOCTL = CALDCO_1MHZ;
-	P1SEL = BIT1 + BIT2;                    // P1.1 = RXD, P1.2=TXD
-	P1SEL2 = BIT1 + BIT2;                   // P1.1 = RXD, P1.2=TXD
-	UCA0CTL1 |= UCSSEL_2;                   // SMCLK
-	UCA0BR0 = 104;                          // 1MHz 9600
-	UCA0BR1 = 0;                            // 1MHz 9600
-	UCA0MCTL = UCBRS0;                      // Modulation UCBRSx = 1
-	UCA0CTL1 &= ~UCSWRST;                   // **Initialize USCI state machine**
-	IE2 |= UCA0RXIE;                        // Enable USCI_A0 RX interrupt
+  BCSCTL1 = CALBC1_1MHZ;                  // Set DCO
+  DCOCTL = CALDCO_1MHZ;
+  P1SEL = BIT1 + BIT2;                    // P1.1 = RXD, P1.2=TXD
+  P1SEL2 = BIT1 + BIT2;                   // P1.1 = RXD, P1.2=TXD
+  UCA0CTL1 |= UCSSEL_2;                   // SMCLK
+  UCA0BR0 = 104;                          // 1MHz 9600
+  UCA0BR1 = 0;                            // 1MHz 9600
+  UCA0MCTL = UCBRS0;                      // Modulation UCBRSx = 1
+  UCA0CTL1 &= ~UCSWRST;                   // **Initialize USCI state machine**
+  IE2 |= UCA0RXIE;                        // Enable USCI_A0 RX interrupt
 ```
 
 Complete code provided in msp430g2553-ADC10.c
@@ -134,11 +134,11 @@ Timer was set to allow a constant read from the ADC to read once per second
 ```
 The Timer interrupt starts the ADC conversation
 ```C
-	#pragma vector=TIMER0_A0_VECTOR			//Timer for ADC Interrupt
-	__interrupt void TIMER0_A0_ISR(void)
-	{
-	ADC12CTL0 |= ADC12SC | ADC12ENC;		//start conversation
-	}
+  #pragma vector=TIMER0_A0_VECTOR			//Timer for ADC Interrupt
+  __interrupt void TIMER0_A0_ISR(void)
+  {
+    ADC12CTL0 |= ADC12SC | ADC12ENC;		//start conversation
+  }
 ```
 ##### ADC
 ADC settings (given by TI) allowed for the ADC to turn on and set registers
