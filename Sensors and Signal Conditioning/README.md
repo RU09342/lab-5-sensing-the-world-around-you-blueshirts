@@ -1,7 +1,7 @@
 ﻿# Lab 5 - Sensors and Signal Conditioning
 #### Joshua Gould
 ##### Created - 11-12-2017
-##### Updated - 11--2017
+##### Updated - 11-25-2017
 
 ## Library Used
 msp430.h - default library
