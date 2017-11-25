@@ -35,10 +35,11 @@ For this part of the lab, you need to focus on two main aspects: utilizing and r
 ## Compatibility
 * MSP430G2553
 * MSP430FR6989
+* MSP430FR5994
 
 ## Functionality Description
 
-ADC and being able to pull data from it. Your code need to communicate back to your computer using UART at 9600 Baud and send the ADC contents at 1 reading per second to start. This really is meant for you to see whether or not your signal conditioning is actually working and you can see changes in your sensor reading. This code should be very very similar to code you have written before and should be simple to port between your processors.
+Create an ADC and being able to pull data from it. This code needs to communicate back to the computer using UART at 9600 Baud and send the ADC contents at 1 reading per second to start. Each type of reading for voltage, current, and resistance is provided below.
 
 ## Temperature Reading - LM35 - Voltage
 After running ADC code for the G2553, the values transmitted from the LM35 across the UART Serial cable.
@@ -46,7 +47,7 @@ The values read are provided below. The LM35 handles each 10mV as one degree cel
 
 ```C
 adc_value = ADC10MEM;
-	voltage = adc_value* 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
+	voltage = adc_value* 0.0033;         //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage .00029 for ADC 12
 	tempC = voltage / 0.01;               //For LM35 each degree C is 10mv (0.01V)
 	tempF = ((9 * (tempC)) / 5) + 32;             //converts degrees C to degrees F
 ```
@@ -74,7 +75,7 @@ adc_value = ADC10MEM;
 	resistance = (3300.0/voltage) - 1000;          //use voltage division equation
 ```
 ## Code
-The requirements for this lab were modified to provide only a working ADC10 and ADC12 code for the lab. Each ADC is provided below.
+The requirements for this lab were modified to provide only a working ADC10 and ADC12 code for the lab. Each ADC code explaination is provided below.
 
 #### ADC-10
 ##### Board Used: MSP430G2553
@@ -118,8 +119,65 @@ Example code was given in LAB-1
 Complete code provided in msp430g2553-ADC10.c
 
 #### ADC-12
-##### Board Used: MSP430FR6989
+##### Board Used: MSP430FR5994 & MSP430FR6989
+For the ADC-12, the process requires a similar set-up of the GPIO, Timer, ADC, and UART setup.
 
-#### Code description
+##### Timer
+Timer was set to allow a constant read from the ADC to read once per second
+
+```C
+  TACCTL0 = CCIE;                           // Enable interrupt
+  TACCR0 = 4096 - 1;                        // PWM Period
+  TACCTL1 = OUTMOD_3;                       // TACCR1 set/reset
+  TACCR1 = 256;                             // TACCR1 PWM Duty Cycle
+  TACTL = TASSEL_1 + MC_1 + ID_3;           // ACLK, UP MODE, DIV 4
+```
+The Timer interrupt starts the ADC conversation
+```C
+	#pragma vector=TIMER0_A0_VECTOR			//Timer for ADC Interrupt
+	__interrupt void TIMER0_A0_ISR(void)
+	{
+	ADC12CTL0 |= ADC12SC | ADC12ENC;		//start conversation
+	}
+```
+##### ADC
+ADC settings (given by TI) allowed for the ADC to turn on and set registers
+
+```C
+  ADC12CTL0 = ADC12SHT0_2 + ADC12ON;			// Set sample time
+  ADC12CTL1 = ADC12SHP;						// Enable sample timer
+  ADC12CTL2 |= ADC12RES_2;					// 12-bit conversion results
+  ADC12MCTL0 = ADC12INCH_5 | ADC12VRSEL_1;	// Vref+ = , Input
+  ADC12IER0 |= ADC12IE0;						// Enable ADC conv complete interrupt
+```
+The ADC interrupt recieves the ADC value from the LM35 (or other device) to manipulate it into a readable value over uart
+```C
+  adc_in = ADC12MEM0;					//Put ADC12MEM value from LM35 to variable
+  voltage = adc_in * 0.00029;           //converts ADC to voltage
+  tempC = voltage / 0.01;               //converts voltage to Temp C
+  tempF = ((9 * tempC) / 5) + 32;       //Temp C to Temp F
+  while (!(UCA0IFG&UCTXIFG));
+  P1OUT ^= BIT0;		 	//toggles LED when sending
+  UCA0TXBUF = tempF;			//Sends TempF over UART
+```
+##### UART
+Example code was given in LAB-1 
+```C
+  CSCTL0_H = CSKEY_H;                         // Unlock CS registers
+  CSCTL1 = DCOFSEL_3 | DCORSEL;               // Set DCO to 8MHz
+  CSCTL2 = SELA__VLOCLK | SELS__DCOCLK | SELM__DCOCLK;
+  CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;       // Set all dividers
+  CSCTL0_H = 0;                               // Lock CS registers
+
+  P2SEL0 &= ~(BIT0 | BIT1);                   //Configure pin 2.0 to RXD
+  P2SEL1 |= BIT0 + BIT1;                        //Configure pin 2.1 to TXD
+						  // Configure USCI_A0 for UART mode
+  UCA0CTLW0 = UCSWRST;                        // Put eUSCI in reset
+  UCA0CTLW0 |= UCSSEL__SMCLK;                 // CLK = SMCLK
+  UCA0BRW = 52;                               // 8000000/16/9600
+  UCA0MCTLW |= UCOS16 | UCBRF_1 | 0x4900;
+  UCA0CTLW0 &= ~UCSWRST;                      // Initialize eUSCI
+  UCA0IE |= UCRXIE;                           // Enable USCI_A0 RX interrupt
+```
 
 
