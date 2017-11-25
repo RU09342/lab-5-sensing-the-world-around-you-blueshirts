@@ -37,11 +37,49 @@ A similar circuit from the LM35 circuit was used to read temperture from. The ci
 
 ![alt text](https://github.com/RU09342/lab-5-sensing-the-world-around-you-blueshirts/blob/master/Sensors%20and%20Signal%20Conditioning/Circuits/Phototransistor.PNG)
 
+## Code
+
 ### ADC
 Additionally, the ADC conversion is similar to code used before with initalization
 
 ```C
+void initADC12(void) {
 
+	ADC12CTL0 = ADC12SHT0_2 | ADC12ON;      // Sampling time, S&H=16, ADC12 on
+	ADC12CTL1 = ADC12SHP;                   // Use sampling timer
+	ADC12CTL2 |= ADC12RES_2;                // 12-bit conversion results
+	ADC12MCTL0 |= ADC12INCH_3;              // A3 ADC input select; Vref=AVCC
+	ADC12IER0 |= ADC12IE0;                  // Enable ADC conv complete interrupt
+}
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector = ADC12_VECTOR
+__interrupt void ADC12_ISR(void)	//ADC Interrupt		
+#elif defined(__GNUC__)
+void __attribute__((interrupt(ADC12_VECTOR))) ADC12_ISR(void)
+#else
+#error Compiler not supported!
+#endif
+{
+	switch (__even_in_range(ADC12IV, ADC12IV_ADC12RDYIFG))
+	{
+	case ADC12IV_ADC12IFG0:             // Vector 12:  ADC12MEM0 Interrupt
+		adc_value = ADC12MEM0;
+		voltage = ((float)adc_value / 1241.2);
+		LCD_1 = voltage * 10;
+		//LCD_1 = (9 * (voltage * 10) / 5) + 32; //Fareheit
+		LCD_2 = ((int)(voltage * 100)) % 10;
+		//LCD_2 = ((9*((int)(voltage * 100))/5)+32) % 10;
+		char_1 = '0' + LCD_1;	//convert to char value
+		char_2 = '0' + LCD_2;
+
+		showChar(char_1, 1);        //tens digit
+		showChar(char_2, 2);        //ones digit
+		showChar(' ', 3);           //add space
+		showChar('C', 4);           //Celcius or F if fahrenheit
+
+		__bic_SR_register_on_exit(LPM0_bits);
+		break;
+}
 ```
 ### LCD
 Calling upon the LCDdriver.h and initialization of the LCD crystal is what separates this code from the others. 
@@ -58,8 +96,7 @@ void initLCD(void) {
 	LCDCCTL0 |= LCDON;                                  // lcd on
 }
 ```
-## Code
-Similar code for ADC and UART was used to accept the ADC values
+
 ### Extra Work
 * [ ] RGB LED
 * [x] MATLAB Code
