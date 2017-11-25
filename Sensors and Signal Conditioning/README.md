@@ -1,7 +1,7 @@
 ﻿# Lab 5 - Sensors and Signal Conditioning
 #### Joshua Gould
 ##### Created - 11-12-2017
-##### Updated - 11--2017
+##### Updated - 11-25-2017
 
 ## Library Used
 msp430.h - default library
@@ -51,6 +51,9 @@ The values read are provided below. The LM35 handles each 10mV as one degree cel
   tempC = voltage / 0.01;               //For LM35 each degree C is 10mv (0.01V)
   tempF = ((9 * (tempC)) / 5) + 32;             //converts degrees C to degrees F
 ```
+### Circuit
+
+![alt text](https://github.com/RU09342/lab-5-sensing-the-world-around-you-blueshirts/blob/master/Sensors%20and%20Signal%20Conditioning/Circuits/Phototransistor.PNG)
 
 ## Phototransistor - Current
 As for the phototransistor, with increased light, current increases and inversely so with less light. With the added resistor, the phototransistor's sensitivity can be controlled. (Higher resistance = more sensistivity)
@@ -63,6 +66,10 @@ Code for the phototransistor UART measurements are provided below
   voltage = adc_value * 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
   current = voltage / 1000;               //Ohms law. Constant resisitor is 1kΩ
 ```
+### Circuit
+
+![alt text](https://github.com/RU09342/lab-5-sensing-the-world-around-you-blueshirts/blob/master/Sensors%20and%20Signal%20Conditioning/Circuits/Photodiode_circuit.PNG)
+
 ## Photoresistor - Resistance
 In this photoresistance circuit, the photoresistor was used with ADC and voltage division.
 The ADC code reads the resistance of the photoresistor and the resistor in the circuit. The constant reisistor was selected as a 1kΩ reistor at 3.3V. As for the photoresistor, the resistance increases when the light is lower and decreases as light increases.
@@ -74,6 +81,10 @@ Code for the photoresistor UART measurements are provided below
   voltage = adc_value * 0.0033;          //Converts ADC to voltage. (Vref/2^10) = 0.0033 * ADC = voltage
   resistance = (3300.0/voltage) - 1000;          //use voltage division equation
 ```
+### Circuit
+
+![alt text](https://github.com/RU09342/lab-5-sensing-the-world-around-you-blueshirts/blob/master/Sensors%20and%20Signal%20Conditioning/Circuits/Photoresistor_circuit.PNG)
+
 ## Code
 The requirements for this lab were modified to provide only a working ADC10 and ADC12 code for the lab. Each ADC code explaination is provided below.
 
